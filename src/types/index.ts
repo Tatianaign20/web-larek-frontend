@@ -27,6 +27,13 @@ interface ICardBasket {
 // Тогда в целом описание карточки по товару должно выглядеть следующим образом:
 interface ICard extends IСardApi, ICardBasket {}
 
+// Скорее всего базовый класс с описанием конструктора для модели будет вынесен в базовые сущности (как абстрактный класс, например) и будет использоваться (наследоаться) в классах сущностей MODAL (КАРТОЧКА ТОВАРА, ЗАКАЗ, описание приложения (AppState)). 
+// Конструктор абстрактного класса (IEvents описан в events.ts):
+	// constructor(data: Partial<T>, events: IEvents) {
+	// 	Object.assign(this, data);
+	// }
+// Класс модели карточки наследует базовый класс и содержит методы addToBasket(), removeFromBasket().
+
 // Тип, который описывает все возможные варианты оплаты товаров
 type PaymentType = "Онлайн" | "При получении"; 
 //Заполняем две формы
@@ -58,6 +65,12 @@ interface IOderForm extends IOrderCommonForm {
 // В случае ошибки
 type OderFormErrors = Partial<Record<keyof IOderForm, string>>;
 
+// Интерфейс для отправки данных на сервер:  
+interface IOrderAPI extends IOderForm{
+    items: string[]; // покупаемые товары
+	total: number; // общая сумма заказа
+}
+
 //Интерфейс для состояния приложения
 interface IAppState {
     cardList: ICard[]; //перечень карточек
@@ -82,19 +95,8 @@ interface ICardList {
 }
 
 //PRESENTER
-// Содержит следующие глобальные сущности: API, EventEmmiter
-//API
-//Используем для:
-//- получения с сервера данныех для КАРТОЧКИ ТОВАРА, списка карточек,
-//- отправления данных по заказу (объект заказа)
-//При описании API указываем методы "GET" (для получения данных), "PUT" (для обновления данных), "POST" (для добавления данных), "DELETE" (для удаления данных)
-enum ApiMethods {
-    GET = 'GET',
-    PUT = 'PUT',
-    POST = 'POST',
-    DELETE = 'DELETE'
-}
-//EventEmmiter будем использовать как основу для управления событиями
+//В PRESENTER будем с использованием данных IWebLarekAPI и EventEmitter описывать события, сявзывать все воедино.
+
 
 //VIEW
 // Содержит следующие сущности: 
