@@ -1,9 +1,8 @@
-
 // MODEL
 // Содержит следующие глобальные сущности: КАРТОЧКА ТОВАРА, ЗАКАЗ, описание приложения (AppState)
 //КАРТОЧКА ТОВАРА
 //Тип, который описывает все категории товаров, представленные в макете интернет-магазина
-type CardCategoryType = "софт-скил" | "кнопка" | "другое" | "хард-скил" | "дополнительное";
+type CardCategoryType = 'софт-скил' | 'кнопка' | 'другое' | 'хард-скил' | 'дополнительное';
 
 //Эти данные по карточке товара мы базово получаем с сервера
 interface IСardApi {
@@ -27,15 +26,8 @@ interface ICardBasket {
 // Тогда в целом описание карточки по товару должно выглядеть следующим образом:
 interface ICard extends IСardApi, ICardBasket {}
 
-// Скорее всего базовый класс с описанием конструктора для модели будет вынесен в базовые сущности (как абстрактный класс, например) и будет использоваться (наследоаться) в классах сущностей MODAL (КАРТОЧКА ТОВАРА, ЗАКАЗ, описание приложения (AppState)). 
-// Конструктор абстрактного класса (IEvents описан в events.ts):
-	// constructor(data: Partial<T>, events: IEvents) {
-	// 	Object.assign(this, data);
-	// }
-// Класс модели карточки наследует базовый класс и содержит методы addToBasket(), removeFromBasket().
-
 // Тип, который описывает все возможные варианты оплаты товаров
-type PaymentType = "Онлайн" | "При получении"; 
+type PaymentType = 'card' | 'cash'; 
 //Заполняем две формы
 interface IOrderDeliveryPaymentForm {
 	payment: PaymentType; //способ оплаты
@@ -52,21 +44,22 @@ interface IOrderCommonForm extends IOrderDeliveryPaymentForm, IOrderContactsForm
 
 //Тогда итоговый интерфейс оформления заказа:
 interface IOderForm extends IOrderCommonForm {
-    basket: ICard[]; //перечень карточек в корзине (в postman items)
-    validateOderForm(): boolean; //функция проверки корректности введенных пользователем данных
-    validateEmail(): boolean; //функция проверки корректности введенных пользователем данных - email
-    validatePhone(): boolean; //функция проверки корректности введенных пользователем данных - номера телефона
-    validatePayment(): boolean; //функция проверки корректности выбора способа оплаты - онлайн или при получении
-    validateAdress(): boolean;//функция проверки корректности введенных пользователем данных - адрес
+    items: ICard[]; //перечень карточек в корзине (в postman items)
+    validateOderForm(): void; //функция проверки корректности введенных пользователем данных
+    validateEmail(): void; //функция проверки корректности введенных пользователем данных - email
+    validatePhone(): void; //функция проверки корректности введенных пользователем данных - номера телефона
+    validatePayment(): void; //функция проверки корректности выбора способа оплаты - онлайн или при получении
+    validateAddress(): void;//функция проверки корректности введенных пользователем данных - адрес
     clearOderForm(): void; //очистка формы
     submitOder(): void; //завершение оформления
 }
 
-// В случае ошибки
-type OderFormErrors = Partial<Record<keyof IOderForm, string>>;
+//В случае ошибки
+type OderFormErrors = Partial<Record<keyof IOrderCommonForm, string>>;
 
-// Интерфейс для отправки данных на сервер:  
-interface IOrderAPI extends IOderForm{
+//Интерфейс для отправки данных на сервер:
+
+interface IOrderAPI extends IOrderCommonForm{
     items: string[]; // покупаемые товары
 	total: number; // общая сумма заказа
 }
@@ -77,7 +70,7 @@ interface IAppState {
     selectCard: ICard; //карточка при открытии
     order: IOderForm; //заказ
     basket: ICard[]; //перечень карточек в корзине
-    totalPrice: number; //сумма заказа (в postman сумма total)
+    total: number; //общая сумма заказа
     isCardInBasket(): boolean;//метод для проверки наличия в корзине (вернуть значение, выбрана ли карточка (selected))
     getCardInBasket(): number;//метод получить количество карточек в корзине
     getCardIdInBasket(): number;//метод получить id карточек в корзине
@@ -94,19 +87,42 @@ interface ICardList {
     cardList: ICard[]; //перечень карточек
 }
 
-//PRESENTER
-//В PRESENTER будем с использованием данных IWebLarekAPI и EventEmitter описывать события, сявзывать все воедино.
+
+// Используемые события
+enum Events {
+	LOAD_CARDS = "cardlist:changed", // подгружаем доступные товары
+	OPEN_CARD = "card:open", // открываем карточку для просмотра
+	OPEN_BASKET = "basket:open", // открываем корзину
+	CHANGE_CARD_IN_BASKET = "card:changed", // добавляем/удаляем товар из корзины
+	VALIDATE_ORDER = "formErrors:changed", // проверяем форму отправки
+	OPEN_FIRST_ORDER_PART = "order_payment:open", // начинаем оформление заказа
+	FINISH_FIRST_ORDER_PART = "order:submit", // заполнили первую форму
+	OPEN_SECOND_ORDER_PART = "order_contacts:open", // продолжаем оформление заказа
+	FINISH_SECOND_ORDER_PART = "contacts:submit", // заполнили форму
+	PLACE_ORDER = "order:post", // завершаем заказ
+	SELECT_PAYMENT = "payment:changed", // выбираем способ оплаты
+	INPUT_ORDER_ADDRESS = "order.address:change", // изменили адрес доставки
+	INPUT_ORDER_EMAIL = "contacts.email:change", // изменили почту 
+	INPUT_ORDER_PHONE = "contacts.phone:change", // изменили телефон 
+	OPEN_MODAL = "modal:open", // блокировка при открытии модального окна
+	CLOSE_MODAL = "modal:close", // снятие блокировки при закрытии модального окна
+}
 
 
-//VIEW
-// Содержит следующие сущности: 
-// - Главная страница (отображается список карточек товаров (HTMLElement[]) и значек корзина с количеством товаров)
-// - Карточка товара (категория, название, описание, цена, картинка, кнопка - определенные HTMLElement)
-// - Модальное окно (контент, кнопка - определенные HTMLElement) 
-// - Корзина содержит 2 сущности: отображение самой корзины (HTMLElement[], общая сумма) и отображение позиции из перечня товаров в корзине (номер по порядку, название, цена, кнопка удалить (метод удаления))
-// - Формы для оформления заказа: 2 формы: способ оплаты, адрес, имя, телефон, базовая форма: кнопка отправки, отображение ошибок после проверки
-// - Успешное завершение заказа, содержит общую сумму заказа
-
-
-
-
+export {
+    CardCategoryType,
+    IСardApi,
+    ICardBasket,
+    ICard,
+    PaymentType,
+    IOrderDeliveryPaymentForm,
+    IOrderContactsForm,
+    IOrderCommonForm,
+    IOderForm,
+    OderFormErrors,
+    IOrderAPI,
+    IAppState,
+    BasketItem,
+    ICardList,
+    Events
+}
