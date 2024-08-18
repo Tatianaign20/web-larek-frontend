@@ -6,7 +6,7 @@
 import './scss/styles.scss';
 
 import { EventEmitter } from './components/base/events';
-import { AppState } from './components/model/AppState';
+import { AppState } from './components/model/BasketData';
 import { WebLarekAPI } from './components/WebLarekAPI';
 import { MainPage } from './components/view/MainPage';
 import { Modal } from './components/view/Modal';

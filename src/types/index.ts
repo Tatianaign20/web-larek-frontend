@@ -1,128 +1,80 @@
-// MODEL
-// Содержит следующие глобальные сущности: КАРТОЧКА ТОВАРА, ЗАКАЗ, описание приложения (AppState)
+
 //КАРТОЧКА ТОВАРА
 //Тип, который описывает все категории товаров, представленные в макете интернет-магазина
-type CardCategoryType = 'софт-скил' | 'кнопка' | 'другое' | 'хард-скил' | 'дополнительное';
+type TCardCategoryType = "софт-скил" | "кнопка" | "другое" | "хард-скил" | "дополнительное";
 
-//Эти данные по карточке товара мы базово получаем с сервера
-interface IСardApi {
-    //Данные, связанные с карточкой товара
-    id: string; //идентификатор товара
+//КАРТОЧКА ТОВАРА
+// Данные по карточке
+interface ICard {
+    _id: string; //идентификатор товара
+    title: string; //название товара
     description: string; //описание товара
     image: string; //изображение товара
-    title: string; //название товара
-    category: CardCategoryType; //категория товара
+    category: TCardCategoryType; //категория товара
     price: number | null; //цена товара
 }
 
-//У нас должны быть данные, связанные с корзиной по товару, т.к. товар мы можем добавить только один раз
-interface ICardBasket {
-    selected: boolean; //значение выбора
-    // Действия, связанные с карточкой товара
-    addToBasket(): void; //метод добавления в корзину
-    removeFromBasket(): void; //метод удаления из корзины
-    }
-
-// Тогда в целом описание карточки по товару должно выглядеть следующим образом:
-interface ICard extends IСardApi, ICardBasket {}
-
-// Тип, который описывает все возможные варианты оплаты товаров
-type PaymentType = 'card' | 'cash'; 
-//Заполняем две формы
-interface IOrderDeliveryPaymentForm {
-	payment: PaymentType; //способ оплаты
-	address: string; // адрес доставки
-}
-
-interface IOrderContactsForm {
-    email: string; //email пользователя
-    phone: string; //телефон пользователя
-}
-
-//Полная форма (включает 2 формы)
-interface IOrderCommonForm extends IOrderDeliveryPaymentForm, IOrderContactsForm {}
-
-//Тогда итоговый интерфейс оформления заказа:
-interface IOderForm extends IOrderCommonForm {
-    items: ICard[]; //перечень карточек в корзине (в postman items)
-    validateOderForm(): void; //функция проверки корректности введенных пользователем данных
-    validateEmail(): void; //функция проверки корректности введенных пользователем данных - email
-    validatePhone(): void; //функция проверки корректности введенных пользователем данных - номера телефона
-    validatePayment(): void; //функция проверки корректности выбора способа оплаты - онлайн или при получении
-    validateAddress(): void;//функция проверки корректности введенных пользователем данных - адрес
-    clearOderForm(): void; //очистка формы
-    submitOder(): void; //завершение оформления
-}
-
-//В случае ошибки
-type OderFormErrors = Partial<Record<keyof IOrderCommonForm, string>>;
-
-//Интерфейс для отправки данных на сервер:
-
-interface IOrderAPI extends IOrderCommonForm{
-    items: string[]; // покупаемые товары
-	total: number; // общая сумма заказа
-}
-
-//Интерфейс для состояния приложения
-interface IAppState {
-    cardList: ICard[]; //перечень карточек
-    selectCard: ICard; //карточка при открытии
-    order: IOderForm; //заказ
-    basket: ICard[]; //перечень карточек в корзине
-    total: number; //общая сумма заказа
-    isCardInBasket(): boolean;//метод для проверки наличия в корзине (вернуть значение, выбрана ли карточка (selected))
-    getCardInBasket(): number;//метод получить количество карточек в корзине
-    getCardIdInBasket(): number;//метод получить id карточек в корзине
-    getTotalPrice(): number;//метод отобразить сумму заказа по всем карточкам в корзине, меняется в зависимости от доб./удаления карточек
-    makeOrder(): void;//метод сдеалть заказ
-    clearBasket(): void;//метод очистить данные корзины после подтверждения оформления заказа
-}
-
-// Описание одной карточкив корзине
-type BasketItem = Pick<ICard, "id" | "title" | "price">
-
-//После оформления заказа мы получаем данные с сервера для отображения на странице карточек, интерфейс
+// Массив карточек
 interface ICardList {
-    cardList: ICard[]; //перечень карточек
+    items: ICard[];
 }
 
+// Данные карточки, используемые на главной странице
+type TCardMainPage = Pick<ICard, '_id' | 'title' | 'image' | 'price' | 'category'>;
 
-// Используемые события
-enum Events {
-	LOAD_CARDS = "cardlist:changed", // подгружаем доступные товары
-	OPEN_CARD = "card:open", // открываем карточку для просмотра
-	OPEN_BASKET = "basket:open", // открываем корзину
-	CHANGE_CARD_IN_BASKET = "card:changed", // добавляем/удаляем товар из корзины
-	VALIDATE_ORDER = "formErrors:changed", // проверяем форму отправки
-	OPEN_FIRST_ORDER_PART = "order_payment:open", // начинаем оформление заказа
-	FINISH_FIRST_ORDER_PART = "order:submit", // заполнили первую форму
-	OPEN_SECOND_ORDER_PART = "order_contacts:open", // продолжаем оформление заказа
-	FINISH_SECOND_ORDER_PART = "contacts:submit", // заполнили форму
-	PLACE_ORDER = "order:post", // завершаем заказ
-	SELECT_PAYMENT = "payment:changed", // выбираем способ оплаты
-	INPUT_ORDER_ADDRESS = "order.address:change", // изменили адрес доставки
-	INPUT_ORDER_EMAIL = "contacts.email:change", // изменили почту 
-	INPUT_ORDER_PHONE = "contacts.phone:change", // изменили телефон 
-	OPEN_MODAL = "modal:open", // блокировка при открытии модального окна
-	CLOSE_MODAL = "modal:close", // снятие блокировки при закрытии модального окна
+// Данные карточки, используемые в корзине
+type TCardBasket = Pick<ICard, '_id' | 'title' | 'price' >;
+
+//Данные карточки для отправки на сервер при заказе
+type TCardBasketOrder = Pick<ICard, '_id'>;
+
+// Данные карточки, используемые в модальном окне карты: интерфейс ICard
+
+//ЗАКАЗ
+type TPaymentType = 'card' | 'cach';
+
+interface IOrderForms {
+    payment: TPaymentType; //способ оплаты
+    address: string; // адрес доставки 
+    email: string; //email
+    phone: string; //телефон
 }
 
+// Данные заказа, используемые в 1 модальном окне
+type TOrderFormPaymentDelyvery = Pick<IOrderForms, 'payment' | 'address'>;
 
-export {
-    CardCategoryType,
-    IСardApi,
-    ICardBasket,
-    ICard,
-    PaymentType,
-    IOrderDeliveryPaymentForm,
-    IOrderContactsForm,
-    IOrderCommonForm,
-    IOderForm,
-    OderFormErrors,
-    IOrderAPI,
-    IAppState,
-    BasketItem,
-    ICardList,
-    Events
+// Данные заказа, используемые в 2 модальном окне
+type TOrderFormContacts = Pick<IOrderForms, 'email' | 'phone'>;
+
+interface IOderFormsData {
+    payment: TPaymentType; //способ оплаты
+    address: string; // адрес доставки 
+    email: string; //email
+    phone: string; //телефон
+    checkValidationPaymentDelyvery(data: Record<keyof TOrderFormPaymentDelyvery, string>): void;//валидировать 1 форму
+    checkValidationContacts(data: Record<keyof TOrderFormContacts, string>): void;//валидировать  2 форму
+    clearOrderForms(): void;//очистить данные формы
+}
+
+// Типизируем Коллекции
+// Коллекция Главная страницва. Перечень карточек на главной странице с учетом отображения карточки в отдельном окне
+// Модель для хранения данных карточек
+interface ICardsData {
+    items: ICard[];
+    preveiw: string | null; // идентификатор карточки при открытии в отдельном окне
+    getCardList(): ICard[]; //получить массив карточек
+    getCard(): ICard; //получить карточку по id
+ }
+
+
+//Коллекция Корзина
+interface ICardBasketData {
+    items: TCardBasket[]; //перечень карточек в корзине ?? может, ICard
+    getCardListInBasket(): TCardBasket[]; //получить массив карточек, а именно id всех карточек)
+    getCardListInBasketNumber(): number;  //чтобы число карточек получить для отображения на корзине
+    addToBasket(): void; //добавить карточку в корзину, в нем коложить карточку в массив, запустить событие, чтобы корзина обновилась, и создать этот товар в корзине
+    removeFromBasket(): void; //удалить карточку из массива, вызвать событие изменения массива в корзине, убираем из корзины
+    updateCardListInBasket():TCardBasket[];
+    getTotalPrice(): number; // получить полную сумму заказа
+    clearBasketData(): void; //очистить данные корзины после заказа
 }
