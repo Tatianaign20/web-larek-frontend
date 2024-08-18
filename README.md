@@ -329,4 +329,8 @@ constructor(container: HTMLElement, events: IEvents)
 'form-address-input: validation' -  событие, необходимость валидации поля адреса  
 'form-email-input: validation' -  событие, необходимость валидации  поля почты  
 'form-phone-input: validation' -  событие, необходимость валидации  поля телефона  
+'error: vaidation'
 'order: finish' - событие, завершение заказа  
+
+## Класс взаимодействия с API
+Класс, описывающий взаимодействие с API. Используются методы GET и POST.

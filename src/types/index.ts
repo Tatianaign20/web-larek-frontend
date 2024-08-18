@@ -41,7 +41,7 @@ interface IOrderForms {
 }
 
 // Данные заказа, используемые в 1 модальном окне
-type TOrderFormPaymentDelyvery = Pick<IOrderForms, 'payment' | 'address'>;
+type TOrderFormPaymentDelivery = Pick<IOrderForms, 'payment' | 'address'>;
 
 // Данные заказа, используемые в 2 модальном окне
 type TOrderFormContacts = Pick<IOrderForms, 'email' | 'phone'>;
@@ -51,7 +51,7 @@ interface IOderFormsData {
     address: string; // адрес доставки 
     email: string; //email
     phone: string; //телефон
-    checkValidationPaymentDelyvery(data: Record<keyof TOrderFormPaymentDelyvery, string>): void;//валидировать 1 форму
+    checkValidationPaymentDelivery(data: Record<keyof TOrderFormPaymentDelivery, string>): void;//валидировать 1 форму
     checkValidationContacts(data: Record<keyof TOrderFormContacts, string>): void;//валидировать  2 форму
     clearOrderForms(): void;//очистить данные формы
 }
@@ -77,4 +77,20 @@ interface ICardBasketData {
     updateCardListInBasket():TCardBasket[];
     getTotalPrice(): number; // получить полную сумму заказа
     clearBasketData(): void; //очистить данные корзины после заказа
+}
+
+export {
+    TCardCategoryType,
+    ICard,
+    ICardList,
+    TCardMainPage,
+    TCardBasket,
+    TCardBasketOrder,
+    TPaymentType,
+    IOrderForms,
+    TOrderFormPaymentDelivery,
+    TOrderFormContacts,
+    IOderFormsData,
+    ICardsData,
+    ICardBasketData
 }
