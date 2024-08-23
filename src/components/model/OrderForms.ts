@@ -1,15 +1,18 @@
 import { Model } from '../base/model';
 import { IOderFormsData, TPaymentType, TOrderFormPaymentDelivery, TOrderFormContacts } from '../../types/index';
+// import { validate } from 'webpack';
 
 export class OrderForms extends Model <IOderFormsData> {
-    protected _payment: TPaymentType;
+    protected _payment: TPaymentType = 'card';
     protected _address: string;
     protected _email: string;
     protected _phone: string;
+    protected _errors: string[] = [];
     //events из Model
 
     set payment(payment: TPaymentType) {
         this._payment = payment;
+        this.checkValidationPayment();
         this.events.emit('edit-payment: change');
     }
 
@@ -19,6 +22,7 @@ export class OrderForms extends Model <IOderFormsData> {
 
     set address(address: string) {
         this._address = address;
+        this.checkValidationDelivery()
         this.events.emit('edit-address: change');
     }
 
@@ -28,6 +32,7 @@ export class OrderForms extends Model <IOderFormsData> {
     
     set email(email: string) {
         this._email = email;
+        this.checkValidationEmail();
         this.events.emit('edit-email: change');
     }
 
@@ -37,6 +42,7 @@ export class OrderForms extends Model <IOderFormsData> {
 
     set phone(phone: string) {
         this._phone = phone;
+        this.checkValidationPhone();
         this.events.emit('edit-phone: change');
     }
 
@@ -44,44 +50,69 @@ export class OrderForms extends Model <IOderFormsData> {
         return this._phone;
     }
 
+    set errors(errors: string[]) {
+        this._errors = errors;
+        this.events.emit('error: vaidation');
+    }
+    get errors(): string[] {
+        return this._errors;
+    }
+
     //валидировать 1 форму, вызвать событие проверки
-    checkValidationPaymentivery(data: Record<keyof TOrderFormPaymentDelivery, string>): void {
-            const errors: string[] = [];
-            if (!data.address) {
-                errors.push('Адрес - обязательное поле');
-            }
-            else {
-                return null;
-            }
-            this.events.emit('form-address-input: validation');
-            if(!data.payment) {
-                errors.push('Необходимо выбрать способ оплаты');
-            }
-            else {
-                return null;   
-            }
-            this.events.emit('form-payment: validation');
+    checkValidationPaymentDelivery(): void {
+        this.checkValidationPayment(); 
+        this.checkValidationDelivery();
+        this.events.emit('form-payment-delivery-input: validation');
         }
+
+    checkValidationPayment(): void {
+         if(!this.payment) {
+             this.errors.push('Необходимо выбрать способ оплаты');
+         }
+         else {
+             return null;   
+        }
+        this.events.emit('form-payment: validation', this.errors);
+    }
+
+    checkValidationDelivery(): void {
+         if (!this.address) {
+             this.errors.push('Адрес - обязательное поле');
+         }
+        else {
+            return null;
+        }
+        this.events.emit('form-address-input: validation', this.errors);
+    }
 
     //валидировать  2 форму,вызвать событие проверки
-    checkValidationContacts(data: Record<keyof TOrderFormContacts, string>): void {
-        const errors: string[] = [];
-        if (!data.email) {
-            errors.push('Email - обязательные поля');
-        }
-        else {
-            return null;
-        }
-        this.events.emit('form-email-input: validation');
-
-        if (!data.phone) {
-            errors.push('Телефон - обязательные поля');
-        }
-        else {
-            return null;
-        }
-        this.events.emit('form-phone-input: validation');
+    checkValidationContacts(): void {
+        this.checkValidationEmail();
+        this.checkValidationPhone();
+        this.events.emit('form-contacts-input: validation');
     }
+
+    checkValidationEmail(): void {
+      
+        if (!this.email) {
+            this.errors.push('Email - обязательные поля');
+        }
+        else {
+            return null;
+        }
+        this.events.emit('form-email-input: validation', this.errors);
+    }
+
+    checkValidationPhone(): void {
+        if (!this.phone) {
+            this.errors.push('Телефон - обязательные поля');
+        }
+        else {
+            return null;
+        }
+        this.events.emit('form-phone-input: validation', this.errors);
+    }
+
     //очистить данные форм
     clearOrderForms(): void {
         this._payment = 'card';

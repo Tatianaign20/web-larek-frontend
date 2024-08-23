@@ -6,11 +6,11 @@ type TCardCategoryType = "софт-скил" | "кнопка" | "другое" |
 //КАРТОЧКА ТОВАРА
 // Данные по карточке
 interface ICard {
-    _id: string; //идентификатор товара
+    id: string; //идентификатор товара
     title: string; //название товара
     description: string; //описание товара
     image: string; //изображение товара
-    category: TCardCategoryType; //категория товара
+    category: TCardCategoryType | string; //категория товара
     price: number | null; //цена товара
 }
 
@@ -20,13 +20,13 @@ interface ICardList {
 }
 
 // Данные карточки, используемые на главной странице
-type TCardMainPage = Pick<ICard, '_id' | 'title' | 'image' | 'price' | 'category'>;
+type TCardMainPage = Pick<ICard, 'id' | 'title' | 'image' | 'price' | 'category'>;
 
 // Данные карточки, используемые в корзине
-type TCardBasket = Pick<ICard, '_id' | 'title' | 'price' >;
+type TCardBasket = Pick<ICard, 'id' | 'title' | 'price' >;
 
 //Данные карточки для отправки на сервер при заказе
-type TCardBasketOrder = Pick<ICard, '_id'>;
+type TCardBasketOrder = Pick<ICard, 'id'>;
 
 // Данные карточки, используемые в модальном окне карты: интерфейс ICard
 
@@ -34,11 +34,12 @@ type TCardBasketOrder = Pick<ICard, '_id'>;
 type TPaymentType = 'card' | 'cach';
 
 interface IOrderForms {
-    payment: TPaymentType; //способ оплаты
+    payment: TPaymentType | string; //способ оплаты
     address: string; // адрес доставки 
     email: string; //email
     phone: string; //телефон
 }
+
 
 // Данные заказа, используемые в 1 модальном окне
 type TOrderFormPaymentDelivery = Pick<IOrderForms, 'payment' | 'address'>;
@@ -51,9 +52,13 @@ interface IOderFormsData {
     address: string; // адрес доставки 
     email: string; //email
     phone: string; //телефон
-    checkValidationPaymentDelivery(data: Record<keyof TOrderFormPaymentDelivery, string>): void;//валидировать 1 форму
-    checkValidationContacts(data: Record<keyof TOrderFormContacts, string>): void;//валидировать  2 форму
-    clearOrderForms(): void;//очистить данные формы
+    checkValidationPaymentDylivery(): void;//валидировать 1 форму, вызвать событие проверки
+    checkValidationPayment(): void;
+    checkValidationDylivery(): void;
+    checkValidationContacts(): void;//валидировать  2 форму,вызвать событие проверки
+    checkValidationEmail(): void;
+    checkValidationPhone(): void;
+    clearOrderForms(): void;//очистить данные форм
 }
 
 // Типизируем Коллекции
@@ -62,7 +67,6 @@ interface IOderFormsData {
 interface ICardsData {
     items: ICard[];
     preveiw: string | null; // идентификатор карточки при открытии в отдельном окне
-    getCardList(): ICard[]; //получить массив карточек
     getCard(): ICard; //получить карточку по id
  }
 
@@ -79,6 +83,17 @@ interface ICardBasketData {
     clearBasketData(): void; //очистить данные корзины после заказа
 }
 
+// Коллекция Заказ
+interface IOrder extends IOrderForms {
+    items: string[]; //перечень карточек в корзине ?? может, ICard
+    total: number;
+}
+
+interface IOrderResult {
+    id: string;
+    total: number;
+}
+
 export {
     TCardCategoryType,
     ICard,
@@ -92,5 +107,7 @@ export {
     TOrderFormContacts,
     IOderFormsData,
     ICardsData,
-    ICardBasketData
+    ICardBasketData,
+    IOrder,
+    IOrderResult
 }

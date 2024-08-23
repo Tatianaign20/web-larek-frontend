@@ -12,6 +12,7 @@ export class CardsData extends Model <ICard> {
         this.events.emit('cards: changed');
     }
 
+    // возможно не нужен
     get items() {
         return this._items;
     }
@@ -24,7 +25,7 @@ export class CardsData extends Model <ICard> {
         const selectedCard = this.getCard(itemId);
         if(selectedCard){
             this._preview = itemId;
-            this.events.emit('card: selected');
+            this.events.emit('card: selected', selectedCard);  
         }
     }
 
@@ -33,14 +34,13 @@ export class CardsData extends Model <ICard> {
     }
 
 
-    //получить массив карточек
+    // //получить массив карточек, проверила, работает
     // getCardList() {
+    //     return this._items;
+    // }  
       
-    // }
-
-    //получить карточку по id, возвращаем данные карточки
+    //получить карточку по id, возвращаем данные карточки, проверила, работает
     getCard(itemId: string) {
-        return this._items.find(item => item._id === itemId);
+        return this._items.find(item => item.id === itemId);
     }
-    
 }
