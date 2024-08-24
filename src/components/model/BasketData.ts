@@ -26,26 +26,27 @@ export class BasketData extends Model <ICardBasketData> {
         return this._items.reduce((acc, item) => acc + item.price, 0);
     } 
     
-    //добавить карточку в корзину, в нем коложить карточку в массив, запустить событие, чтобы корзина обновилась, и создать этот товар в корзине
+    //добавить карточку в корзину, в нем положить карточку в массив, запустить событие, чтобы корзина обновилась, и создать этот товар в корзине
     addToBasket(item: TCardBasket): void {
         this._items=[item, ...this._items];
-        this.updateCardListInBasket();
+        // this.events.emit('basket: addcard', this._items);
+        // this.updateCardListInBasket();
     }
     //удалить карточку из массива, вызвать событие изменения массива в корзине, убираем из корзины
     removeFromBasket(itemId: string): void {
         this._items = this._items.filter(item => item.id !== itemId);
-        this.updateCardListInBasket();
+        this.events.emit('basket: removecard', this._items);
+        // this.updateCardListInBasket();
     }
     // ??возможно добавить метод обновл. карточки 6 место 11.51
-    updateCardListInBasket(){
-         this.events.emit('basket: change', this._items);
-         this.events.emit('counter: change', this._items);
-    }
+    // updateCardListInBasket(){
+    //      this.events.emit('counter: change', this._items);
+    // }
 
     //очистить корзину ПОКА не работает
     clearBasketData(): void {
         this._items = [];
-        this.updateCardListInBasket();
+        // this.updateCardListInBasket();
     } 
 }
 

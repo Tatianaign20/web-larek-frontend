@@ -13,9 +13,21 @@ export class CardsData extends Model <ICard> {
     }
 
     // возможно не нужен
-    get items() {
-        return this._items;
-    }
+    // get items() {
+    //     return this._items;
+    // }
+
+    // set preview(itemId: string | null) {
+    //     if(!itemId){
+    //         this._preview = null;
+    //         return;
+    //     }
+    //     const selectedCard = this.getCard(itemId);
+    //     if(selectedCard){
+    //         this._preview = itemId;
+    //         this.events.emit('card: selected', selectedCard);  
+    //     }
+    // }
 
     set preview(itemId: string | null) {
         if(!itemId){
@@ -29,15 +41,16 @@ export class CardsData extends Model <ICard> {
         }
     }
 
+
     get preview() {
         return this._preview;
     }
 
 
-    // //получить массив карточек, проверила, работает
-    // getCardList() {
-    //     return this._items;
-    // }  
+    //получить массив карточек, проверила, работает
+    getCardList() {
+        return this._items;
+    }  
       
     //получить карточку по id, возвращаем данные карточки, проверила, работает
     getCard(itemId: string) {

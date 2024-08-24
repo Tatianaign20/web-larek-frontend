@@ -4,12 +4,14 @@ import { Component } from '../base/Component';
 import { ICard, ICardBasketData, TCardCategoryType} from '../../types/index';
 
 // Карточка (расширяет класс Модальное окно): имеет обработчик, который выполняется, когда добавляется карточка в корзину, кнопка должна меняться в зависимости от того, находится ли товар в корзине, должна иметь возможность получить все данные по карточке.
-
+interface ICardActions {
+    onClick: (event: MouseEvent) => void;
+}
 export class  CardViewBase extends Component<ICard> {
     protected _title: HTMLElement;
     protected _price: HTMLElement;
     
-    constructor(container: HTMLElement, protected events: IEvents) {
+    constructor(container: HTMLElement) {
         super(container);
         this._title = ensureElement<HTMLElement>('.card__title', container);
         this._price = ensureElement<HTMLElement>('.card__price', container);
@@ -28,13 +30,21 @@ export class  CardViewBase extends Component<ICard> {
 export class CardViewBasket extends CardViewBase {
     protected buttonDelete?: HTMLButtonElement; // кнопка удалить
 
-    constructor(container: HTMLElement, protected events: IEvents) {
-        super(container, events);
-        this.buttonDelete = ensureElement<HTMLButtonElement>('.basket__item-delete', container);
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super(container);
+        this.buttonDelete = container.querySelector('.basket__item-delete');
 
-        this.buttonDelete.addEventListener('click', () => {
-            this.events.emit('basket: change', { card: this });
-        })
+        // this.buttonDelete.addEventListener('click', () => {
+        //     this.events.emit('basket: change', { card: this });
+        // })
+
+        if (actions?.onClick) {
+            if (this.buttonDelete) {
+                this.buttonDelete.addEventListener('click', actions.onClick);
+            } else {
+                container.addEventListener('click', actions.onClick);
+            }
+        }
     }
 }
 
@@ -49,10 +59,19 @@ export class CardViewCardList extends CardViewBase  {
             "дополнительное": "_additional",
         }
 
-    constructor(container: HTMLElement, protected events: IEvents) {
-        super(container, events);
-        this._category = ensureElement<HTMLElement>('.card__category', container);
-        this._image = ensureElement<HTMLImageElement>('.card__image', container);
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super(container);
+        this._category = container.querySelector('.card__category');
+        this._image = container.querySelector('.card__image');
+
+        if (actions?.onClick) {
+            if (this.image) {
+                this._image.addEventListener('click', actions.onClick);
+            } else {
+                container.addEventListener('click', actions.onClick);
+            }
+        }
+
     }
     
     set category(value: string) {
@@ -84,16 +103,24 @@ export class CardViewPreview extends CardViewBase {
         "дополнительное": "_additional",
     }
 
-    constructor(container: HTMLElement, protected events: IEvents) {
-        super(container, events);
-        this._category = ensureElement<HTMLElement>('.card__category', container);
-        this._description = ensureElement<HTMLElement>('.card__text', container);
-        this._image = ensureElement<HTMLImageElement>('.card__image', container);
-        this._buttonChange = ensureElement<HTMLButtonElement>('.button', container);
+    constructor(container: HTMLElement, actions?: ICardActions) {
+        super(container);
+        this._category = container.querySelector('.card__category');
+        this._description = container.querySelector('.card__text');
+        this._image = container.querySelector('.card__image');
+        this._buttonChange = container.querySelector('.button');
 
-        this._buttonChange.addEventListener('click', () => {
-            this.events.emit('basket: change', { card: this });
-        })
+        // this._buttonChange.addEventListener('click', () => {
+        //     this.events.emit('basket: change', { card: this });
+        // })
+
+        if (actions?.onClick) {
+            if (this._buttonChange) {
+                this._buttonChange.addEventListener('click', actions.onClick);
+            } else {
+                container.addEventListener('click', actions.onClick);
+            }
+        }
     }
 
     set category(value: string) {

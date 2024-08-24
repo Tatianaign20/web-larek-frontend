@@ -4,8 +4,8 @@ import { IEvents } from './components/base/events';
 import { CardsData } from "./components/model/CardsData";
 import { BasketData } from "./components/model/BasketData";
 import { OrderForms } from "./components/model/OrderForms";
-import { ICard, IOrder, TPaymentType, ICardsData, ICardList} from './types';
-import {API_URL, CDN_URL} from "./utils/constants";
+import { ICard, IOrder, TPaymentType, ICardsData, ICardList, TCardBasket} from './types';
+import { API_URL, CDN_URL } from "./utils/constants";
 import { APIweblarek } from "./components/APIweblarek";
 import { Modal } from "./components/view/Modal";
 import { CardViewBase, CardViewBasket, CardViewCardList, CardViewPreview } from "./components/view/Card";
@@ -20,12 +20,12 @@ import { SuccessOrder } from './components/view/SuccessOrder';
 const events = new EventEmitter();
 const api = new APIweblarek(CDN_URL, API_URL);
 
-const cardviewlist = ensureElement<HTMLTemplateElement>('#card-catalog');
-const cardviewpreview = ensureElement<HTMLTemplateElement>('#card-preview');
-const cardview = ensureElement<HTMLTemplateElement>('#card-basket');
-const basketview = ensureElement<HTMLTemplateElement>('#basket');
-const deliverypaymentview = ensureElement<HTMLTemplateElement>('#order');
-const contactsview = ensureElement<HTMLTemplateElement>('#contacts');
+const cardviewlistTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+const cardviewpreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
+const cardviewbasketTemplate = ensureElement<HTMLTemplateElement>('#card-basket');
+const basketviewTemplate = ensureElement<HTMLTemplateElement>('#basket');
+const delpayviewTemplate = ensureElement<HTMLTemplateElement>('#order');
+const contactsviewTemplate = ensureElement<HTMLTemplateElement>('#contacts');
 const success = ensureElement<HTMLTemplateElement>('#success');
 
 // Из Model
@@ -33,28 +33,144 @@ const cardsData = new CardsData({}, events);
 const basketData = new BasketData({}, events);
 const orderForms = new OrderForms({}, events);
 
-// //Из View
+// // //Из View
 const mainpage = new MainPage(document.body, events);
-const modal = new Modal(document.querySelector('#modal-container'), events);
-const basket = new BasketView(cloneTemplate(basketview), events);
-const deliverypayment  = new OrderFormPaymentDeliveryView(cloneTemplate(deliverypaymentview ), events);
-const contacts = new OrderFormContactsView(cloneTemplate(contactsview), events);
+const modal = new Modal(ensureElement<HTMLElement>('#modal-container'), events);
+const basket = new BasketView(cloneTemplate(basketviewTemplate), events);
+const deliverypayment  = new OrderFormPaymentDeliveryView(cloneTemplate(delpayviewTemplate ), events);
+const contacts = new OrderFormContactsView(cloneTemplate(contactsviewTemplate), events);
 // const successView = new SuccessOrder(ensureElement<HTMLElement>('#success'), events);
 
+//Запускаем событие. Отображаем перечень карточек (в компоненте Главная страница), данные берем из Model - класс CardsData, метод getCardList().  
 
-// events.on<ICardList>('cards: changed', () => {
-//     mainpage.catalog = cardsData.items.map(item => {
-//         const card = new CardViewCardList(cloneTemplate(cardviewlist),  {
-//             onClick: () => events.emit('card:selected', item)});
-//         return card.render({
+events.on<ICardList>('cards: changed', () => {
+    mainpage.catalog = cardsData.getCardList().map(item => {
+        const card = new CardViewCardList(cloneTemplate(cardviewlistTemplate), {
+            onClick: () => events.emit('card: selected', item)});
+        return card.render(item);
+    });
+});
+
+
+//Запускаем событие. Отображаем количество товаров в корзине, данные берем из Model класс BasketData, метод getCardListInBasketNumber().   ??
+
+//Открываем карточку. По клику. Событие: 'card: selected'  
+// Запускаем событие. Отображаем данные карточки (передаем в компонент Карточка), данные получаем из CardsData, метод getCard(). Также запускаем событие проверки наличия в корзине класс BasketData ??. Если в корзине есть - отображаем (передаем в компонент Карточка) удалить, если нет - В корзину.
+
+// events.on('card: selected', (item: ICard) => {
+//     cardsData.getCard(item.id);
+//     const cardpreview = new CardViewPreview(cloneTemplate(cardviewpreviewTemplate),  {onClick: () => {
+//         events.emit('basket: change', item);
+//         cardpreview.buttonChange =
+//         basketData.getCardListInBasket().indexOf(item.id) !== -1
+// 					? 'Удалить из корзины'
+// 					: 'Добавить в корзину';
+//       },
+//     });
+//     modal.render({content: cardpreview.render(item)});
+// })
+
+
+
+
+events.on('card: selected', (item: ICard) => {
+    cardsData.getCard(item.id);
+    const cardpreview = new CardViewPreview(cloneTemplate(cardviewpreviewTemplate),  {onClick: () => {
+        if(item.id === basketData.getCardListInBasket()[0]) {
+            basketData.removeFromBasket(item.id);
+            cardpreview.buttonChange = 'В корзину';
+            mainpage.counter = basketData.getCardListInBasketNumber();
+            // events.emit('basket: addcard', item);
+        } else {
+            basketData.addToBasket(item);
+            cardpreview.buttonChange = 'Удалить из корзины';
+            mainpage.counter = basketData.getCardListInBasketNumber();
+            // events.emit('basket: removecard', item);
+        }
+      },
+    });
+    modal.render({content: cardpreview.render(item)});
+    //как сохранить название на кнопке?
+})
+
+// events.on('basket: addcard', (item: TCardBasket) => {
+//     basketData.addToBasket(item);
+// })
+
+// events.on('basket: removecard', (item: TCardBasket) => {
+//     basketData.removeFromBasket(item.id);
+// })
+
+
+// events.on('basket: open', (item) => {
+//     basketData.getCardListInBasket();
+//     modal.render({content: basket.render()})
+
+// })
+
+
+events.on('basket: open', () => {
+    const basketitems = basketData.items.map(item => {
+        const basketitem = new CardViewBasket(cloneTemplate(cardviewbasketTemplate), {
+            onClick: () => events.emit('basket: removecard', item)
+          })
+          return basketitem.render(item);
+    });
+    modal.render({content: basket.render({
+        items: basketitems,
+        total: basketData.getTotalPrice()
+    })})
+
+})
+
+// events.on('basket: removecard', (item: TCardBasket) => {
+//     basketData.removeFromBasket(item.id);
+//     mainpage.counter = basketData.getCardListInBasketNumber();
+//     modal.render({content: basket.render()})
+// })
+
+
+
+
+
+
+
+// // отображение карточки
+// events.on('card: selected', (item: ICard) => {
+//     cardsData.getCard(item.id);
+//         const card = new CardViewPreview(cloneTemplate(cardviewpreview), {
+//             onClick: () => {
+//               events.emit('basket: change', item)
+//             }
+//         });
+//         modal.render({content: card.render({
+//             id: item.id,
 //             title: item.title,
 //             image: item.image,
-//             description: item.description,
 //             category: item.category,
+//             description: item.description,
 //             price: item.price,
-//         });
-//     });
+//           })});
 // });
+
+
+
+
+
+
+
+
+
+// Блокируем прокрутку страницы если открыта модалка
+events.on('modal:open', () => {
+    mainpage.locked = true;
+});
+
+// ... и разблокируем
+events.on('modal:close', () => {
+    mainpage.locked = false;
+});
+
 
 
 
@@ -97,101 +213,84 @@ api.postOrderCardsApi(ordertest)
 
 
 
+//     // const modal = new Modal(document.querySelector('#modal-container'), events);
+
+// const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
+// // // // const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // const modal = new Modal(document.querySelector('#modal-container'), events);
-
-// // //     const cardCatalogTemplate = ensureElement<HTMLTemplateElement>('#card-catalog');
-// // // const cardPreviewTemplate = ensureElement<HTMLTemplateElement>('#card-preview');
-
-
-
-// // const gallery = document.querySelector('.gallery');
 // // const cardmin = new CardViewBase(cloneTemplate(cardview));
-// // const cardBasket = new CardViewBasket(cloneTemplate(cardview), events);
-// // const cardList = new CardViewCardList(cloneTemplate(cardviewlist));
+// // // const cardBasket = new CardViewBasket(cloneTemplate(cardview), events);
+// const cardList = new CardViewCardList(cloneTemplate(cardviewlist), events);
 
-// const cardPreview = new CardViewPreview(cloneTemplate(cardviewpreview), events);
-// // const cardPreview = new CardViewPreview(cloneTemplate(cardview), events);
+// // const cardPreview = new CardViewPreview(cloneTemplate(cardviewpreview), events);
+// // // const cardPreview = new CardViewPreview(cloneTemplate(cardview), events);
 
-// // gallery.append(cardmin.render({price: 123, title: 'test'})); //работает
-// // gallery.append(cardBasket.render({price: 123, title: 'test'})); //работает
+// // // gallery.append(cardmin.render({price: 123, title: 'test'})); //работает
+// // // gallery.append(cardBasket.render({price: 123, title: 'test'})); //работает
 
-// // gallery.append(cardList.render({price: 123, title: 'test', category: 'другое'})); //работает
+// gallery.append(cardList.render({price: 123, title: 'test', category: 'другое'})); //работает
 
-// // gallery.append(cardPreview.render({price: 123, title: 'test', category: 'другое', description: 'test'})); //работает
-
-
-// const basketfull = new BasketView(cloneTemplate(basketview), events);
-
-// // modal.render({content: basketfull.render()});
-// // modal.render({content: basketfull.render()});
+// // // gallery.append(cardPreview.render({price: 123, title: 'test', category: 'другое', description: 'test'})); //работает
 
 
 
 
-// const formview = ensureElement<HTMLTemplateElement>('#contacts');
-// const formview2 = ensureElement<HTMLTemplateElement>('#order'); 
 
 
-// const formContacts = new OrderFormContactsView(cloneTemplate(formview), events);
-// const formDelivery = new OrderFormPaymentDeliveryView(cloneTemplate(formview2), events);
+// // const basketfull = new BasketView(cloneTemplate(basketview), events);
 
-// const ordertestContacts = {
-//     "phone": "+71234567890",
-//     "email": "test@test.ru",
-//     valid: true,
-//     errors: ['']
-// }
-// const ordertestDelivery = {
-
-//     "address": "Spb Vosstania 1",
-//     valid: true,
-//     errors: ['']
-
-// }
-
-// modal.render({content: formContacts.render(ordertestContacts)});
+// // // modal.render({content: basketfull.render()});
+// // // modal.render({content: basketfull.render()});
 
 
 
 
+// // const formview = ensureElement<HTMLTemplateElement>('#contacts');
+// // const formview2 = ensureElement<HTMLTemplateElement>('#order'); 
+
+
+// // const formContacts = new OrderFormContactsView(cloneTemplate(formview), events);
+// // const formDelivery = new OrderFormPaymentDeliveryView(cloneTemplate(formview2), events);
+
+// // const ordertestContacts = {
+// //     "phone": "+71234567890",
+// //     "email": "test@test.ru",
+// //     valid: true,
+// //     errors: ['']
+// // }
+// // const ordertestDelivery = {
+
+// //     "address": "Spb Vosstania 1",
+// //     valid: true,
+// //     errors: ['']
+
+// // }
 
 // // modal.render({content: formContacts.render(ordertestContacts)});
-// // modal.render({content: formDelivery.render(ordertestDelivery)});
-
-// // modal.render({content: formDelivery.render(ordertestDelivery)});
 
 
 
 
 
-// // modal.render({content: formContacts.render(bbb)});
+// // // modal.render({content: formContacts.render(ordertestContacts)});
+// // // modal.render({content: formDelivery.render(ordertestDelivery)});
+
+// // // modal.render({content: formDelivery.render(ordertestDelivery)});
 
 
-// // events.on('cards: changed', () => {
-// // cardsData.items.forEach((item) => {
-// //     const cardnew = new CardViewBase(cloneTemplate(cardview));
-// //     gallery.append(cardnew.render(item));
-// // });
-// // })
+
+
+
+// // // modal.render({content: formContacts.render(bbb)});
+
+
+// events.on('cards: changed', () => {
+// cardsData.items.forEach((item) => {
+// const cardnew = new CardViewBase(cloneTemplate(cardview), events);
+//  gallery.append(cardnew.render(item));
+//  });
+//  })
 

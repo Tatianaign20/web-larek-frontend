@@ -38,6 +38,12 @@ export class BasketView extends Component<IBasketView> {
         this.setText(this._total, `${value} синапсов`);
     }
 
+    set cardListBasket(value: HTMLElement[]) {
+        this.items = value;
+    }
+
+
+
     set items(items: HTMLElement[]) {
         if(items.length) {
             this._cardListBasket.replaceChildren(...items);

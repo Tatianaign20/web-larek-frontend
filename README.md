@@ -321,6 +321,8 @@ constructor(container: HTMLElement, events: IEvents)
 Нажимаем За новыми покупками. Событие: 'order: finish'  
 Запускаем событие. Получаем данные с сервера по карточкам. Запускаем метод getCardList() из класса CardsData Model. Передаем данные для отображения в компонент Главная страница.  Запускаем событие. Отображаем количество товаров в корзине, данные берем из Model класс BasketData, метод getCardListInBasketNumber(). 
 
+При открытии  модального окна блокируем прокрутку. При закрытии - снимаем блокировку.
+
 ### События
 События, которые могут генерироваться в системе:
 'cards: changed' - изменение массива карточек
@@ -345,8 +347,11 @@ constructor(container: HTMLElement, events: IEvents)
 'form-contacts-input: validation' - событие, валидация формы контактов
 'form-payment-delivery-input: validation' - событие, валидация формы адрес, способ оплаты
 'error: vaidation'
-'order: finish' - событие, завершение заказа 
-'modal:close' - событие закрытия модального окна
+'order: finish' - событие, завершение заказа
+'modal: open' - событие открытия моального окна
+'modal: close' - событие закрытия модального окна
+'basket: addcard'
+'basket: removecard'
 
 ## Класс взаимодействия с API
 Класс, описывающий взаимодействие с API. Используются методы GET и POST.
