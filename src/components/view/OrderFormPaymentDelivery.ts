@@ -1,5 +1,5 @@
 import { IEvents } from '../base/events';
-import {createElement, ensureElement} from "../../utils/utils";
+import {createElement, ensureElement, ensureAllElements} from "../../utils/utils";
 import { Form } from './Form';
 import { TOrderFormPaymentDelivery } from "../../types/index";
 
@@ -7,42 +7,41 @@ import { TOrderFormPaymentDelivery } from "../../types/index";
 // В классе частично использован код учебного проекта Оно
 
 export class OrderFormPaymentDeliveryView extends Form<TOrderFormPaymentDelivery> {
-   protected _button_delivery_cash: HTMLButtonElement;
-   protected _button_delivery_card: HTMLButtonElement;
+   protected _buttonsРayment: HTMLButtonElement[];
 
 
 
     constructor(container: HTMLFormElement, events: IEvents) {
         super(container, events);
 
-        this._button_delivery_cash = container.querySelector('cash');
-        this._button_delivery_card = container.querySelector('card');
+        this._buttonsРayment = ensureAllElements(`.button_alt`, container);
 
-        // this._button_delivery_cash.addEventListener('click', () => {
-		// 	// this.setPayment();
-        //     this.events.emit('payment: change', { payment: 'cash' });
-        // });
-        // this._button_delivery_card.addEventListener('click', () => {
-        //     // this.setPayment();
-        //     this.events.emit('payment: change', { payment: 'card' });
-        // });
-
+        this._buttonsРayment.forEach((buttonРayment) => {
+			buttonРayment.addEventListener('click', () => {
+				this.buttonsРayment = buttonРayment.name;
+				this.onInputChange(`payment`, buttonРayment.name);
+			});
+		});
     }
-//  передается кнопка, которую нажали, если кнопка нажата то переключаем класс
-	// setPayment() {
-			
-	// 	};
+
+    set buttonsРayment(name: string) {
+		this._buttonsРayment.forEach((buttonsРayment) => {
+			this.toggleClass(buttonsРayment, 'button_alt-active', buttonsРayment.name === name);
+		});
+	}
 
 
     set address(value: string) {
         (this.container.elements.namedItem('address') as HTMLInputElement).value = value;
     }
-//установить значение кнопки , при нажатии на разные кнопки
-//  set payment(value: TPaymentType) {
-//     this.toggleClass
-//     }
 
 
+    clearbuttonsРayment() {
+        this._buttonsРayment.forEach((buttonРayment) => {
+            this.toggleClass(buttonРayment, 'button_alt-active', false);
+            });
+        }
 }
+
 
 

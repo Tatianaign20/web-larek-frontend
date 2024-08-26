@@ -12,6 +12,7 @@ interface ICard {
     image: string; //изображение товара
     category: TCardCategoryType | string; //категория товара
     price: number | null; //цена товара
+    index?: number; //??
 }
 
 // Массив карточек
@@ -23,7 +24,7 @@ interface ICardList {
 type TCardMainPage = Pick<ICard, 'id' | 'title' | 'image' | 'price' | 'category'>;
 
 // Данные карточки, используемые в корзине
-type TCardBasket = Pick<ICard, 'id' | 'title' | 'price' >;
+type TCardBasket = Pick<ICard, 'id' | 'title' | 'price' | 'index'>; //??
 
 //Данные карточки для отправки на сервер при заказе
 type TCardBasketOrder = Pick<ICard, 'id'>;

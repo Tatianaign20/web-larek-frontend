@@ -28,11 +28,13 @@ export class  CardViewBase extends Component<ICard> {
 }
 
 export class CardViewBasket extends CardViewBase {
-    protected buttonDelete?: HTMLButtonElement; // кнопка удалить
+    protected buttonDelete?: HTMLButtonElement; // кнопка удалить;
+    protected _index: HTMLElement;
 
     constructor(container: HTMLElement, actions?: ICardActions) {
         super(container);
         this.buttonDelete = container.querySelector('.basket__item-delete');
+        this._index = container.querySelector('.basket__item-index');
 
         // this.buttonDelete.addEventListener('click', () => {
         //     this.events.emit('basket: change', { card: this });
@@ -45,6 +47,10 @@ export class CardViewBasket extends CardViewBase {
                 container.addEventListener('click', actions.onClick);
             }
         }
+    }
+
+    set index(value: number) {  
+        this._index.textContent = value.toString();
     }
 }
 
@@ -71,7 +77,6 @@ export class CardViewCardList extends CardViewBase  {
                 container.addEventListener('click', actions.onClick);
             }
         }
-
     }
     
     set category(value: string) {
@@ -86,7 +91,6 @@ export class CardViewCardList extends CardViewBase  {
         this._image.src = value;
         this._image.alt = this._title.textContent;
     }
-
 }
 
 export class CardViewPreview extends CardViewBase {

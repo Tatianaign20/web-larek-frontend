@@ -22,7 +22,6 @@ export class BasketView extends Component<IBasketView> {
         this._basketButton = ensureElement<HTMLButtonElement>('.basket__button', container);
         this._total = ensureElement<HTMLElement>('.basket__price', container);
 
-
         this._basketButton.addEventListener('click', () => {
             this.events.emit('basket: submit');
         })
@@ -42,8 +41,6 @@ export class BasketView extends Component<IBasketView> {
         this.items = value;
     }
 
-
-
     set items(items: HTMLElement[]) {
         if(items.length) {
             this._cardListBasket.replaceChildren(...items);
@@ -57,8 +54,13 @@ export class BasketView extends Component<IBasketView> {
         }; 
     }
 
-    
+
+    getnewindexlist() {
+        Array.from(this._cardListBasket.children).forEach((item, index) =>
+          (item.querySelector(`.basket__item-index`)!.textContent = (index + 1).toString()));
+      }
 }
+    
 
 
 

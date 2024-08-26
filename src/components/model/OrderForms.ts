@@ -1,5 +1,5 @@
 import { Model } from '../base/model';
-import { IOderFormsData, TPaymentType, TOrderFormPaymentDelivery, TOrderFormContacts } from '../../types/index';
+import { IOderFormsData, TPaymentType, TOrderFormPaymentDelivery, TOrderFormContacts,IOrderForms } from '../../types/index';
 // import { validate } from 'webpack';
 
 export class OrderForms extends Model <IOderFormsData> {

@@ -35,13 +35,18 @@ export class BasketData extends Model <ICardBasketData> {
     //удалить карточку из массива, вызвать событие изменения массива в корзине, убираем из корзины
     removeFromBasket(itemId: string): void {
         this._items = this._items.filter(item => item.id !== itemId);
-        this.events.emit('basket: removecard', this._items);
+        // this.events.emit('basket: removecard', this._items);
         // this.updateCardListInBasket();
     }
     // ??возможно добавить метод обновл. карточки 6 место 11.51
     // updateCardListInBasket(){
     //      this.events.emit('counter: change', this._items);
     // }
+
+
+    inBasket(itemID: string) {
+        return this._items.some(item => item.id === itemID);
+    }
 
     //очистить корзину ПОКА не работает
     clearBasketData(): void {

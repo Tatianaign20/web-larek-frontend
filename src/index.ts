@@ -4,7 +4,7 @@ import { IEvents } from './components/base/events';
 import { CardsData } from "./components/model/CardsData";
 import { BasketData } from "./components/model/BasketData";
 import { OrderForms } from "./components/model/OrderForms";
-import { ICard, IOrder, TPaymentType, ICardsData, ICardList, TCardBasket} from './types';
+import { ICard, IOrder, TPaymentType, ICardsData, ICardList, TCardBasket, IOrderForms, IOderFormsData} from './types';
 import { API_URL, CDN_URL } from "./utils/constants";
 import { APIweblarek } from "./components/APIweblarek";
 import { Modal } from "./components/view/Modal";
@@ -74,63 +74,119 @@ events.on<ICardList>('cards: changed', () => {
 
 
 events.on('card: selected', (item: ICard) => {
-    cardsData.getCard(item.id);
+    // cardsData.getCard(item.id);
+    
     const cardpreview = new CardViewPreview(cloneTemplate(cardviewpreviewTemplate),  {onClick: () => {
-        if(item.id === basketData.getCardListInBasket()[0]) {
+        if(basketData.inBasket(item.id)) {
             basketData.removeFromBasket(item.id);
             cardpreview.buttonChange = 'В корзину';
-            mainpage.counter = basketData.getCardListInBasketNumber();
+            // mainpage.counter = basketData.getCardListInBasketNumber();
             // events.emit('basket: addcard', item);
         } else {
             basketData.addToBasket(item);
             cardpreview.buttonChange = 'Удалить из корзины';
-            mainpage.counter = basketData.getCardListInBasketNumber();
+            // mainpage.counter = basketData.getCardListInBasketNumber();
             // events.emit('basket: removecard', item);
         }
+        mainpage.counter = basketData.getCardListInBasketNumber();
       },
     });
+    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Удалить из корзины' : 'В корзину';
+    console.log(basketData.inBasket(item.id));
     modal.render({content: cardpreview.render(item)});
     //как сохранить название на кнопке?
 })
 
-// events.on('basket: addcard', (item: TCardBasket) => {
-//     basketData.addToBasket(item);
-// })
-
-// events.on('basket: removecard', (item: TCardBasket) => {
-//     basketData.removeFromBasket(item.id);
-// })
-
-
-// events.on('basket: open', (item) => {
-//     basketData.getCardListInBasket();
-//     modal.render({content: basket.render()})
-
-// })
-
 
 events.on('basket: open', () => {
-    const basketitems = basketData.items.map(item => {
+    const basketitems = basketData.items.map((item, index) => {
         const basketitem = new CardViewBasket(cloneTemplate(cardviewbasketTemplate), {
             onClick: () => events.emit('basket: removecard', item)
           })
+          basketitem.index = index + 1
           return basketitem.render(item);
     });
     modal.render({content: basket.render({
         items: basketitems,
-        total: basketData.getTotalPrice()
+        total: basketData.getTotalPrice(),
     })})
-
 })
 
-// events.on('basket: removecard', (item: TCardBasket) => {
-//     basketData.removeFromBasket(item.id);
-//     mainpage.counter = basketData.getCardListInBasketNumber();
-//     modal.render({content: basket.render()})
-// })
 
 
+events.on('basket: removecard', (item: TCardBasket) => {
+    basketData.removeFromBasket(item.id);
+    basketData.getTotalPrice();
+    const basketitems = basketData.items.map((item, index) => {
+        const basketitem = new CardViewBasket(cloneTemplate(cardviewbasketTemplate), {
+            onClick: () => events.emit('basket: removecard', item)
+          })
+          basketitem.index = index + 1
+          return basketitem.render(item);
+    });
+    mainpage.counter = basketData.getCardListInBasketNumber();
+    modal.render({content: basket.render({
+        items: basketitems,
+        total: basketData.getTotalPrice(),
+    })})
+})
+events.on('basket: submit', () => {
+	events.emit('form-payment-delivery: open');
+});
 
+events.on('form-payment-delivery: open', () => {
+    modal.render({ content: deliverypayment.render({
+          address: '',
+          valid: false,
+          errors: []
+        }),
+    });
+  });
+  
+
+  events.on('edit-payment: change', (data: { target: string }) => {
+    // выбирается кнопка оплаты
+    orderForms.payment = data.target as TPaymentType;
+  });
+
+events.on('edit-address: change', (data: { value: string }) => {
+	orderForms.address = data.value;
+});
+
+// Изменилось состояние валидации формы
+events.on('form-payment-delivery: validation', (errors: Partial<IOrderForms>) => {
+    const { payment, address } = errors;
+    deliverypayment.valid = !payment && !address;
+    deliverypayment.errors = Object.values({ payment, address }).filter(i => !!i).join('; ');
+});
+
+events.on('form-payment-delivery: submit', () => {
+	events.emit('form-contacts: open' );
+});
+
+events.on('form-contacts: open', () => {
+
+    modal.render({content: contacts.render({
+            phone: '',
+            email: '',
+            valid: false,
+            errors: []
+        }
+    )});
+})
+
+events.on('edit-email: change', (data: { value: string }) => {
+	contacts.email = data.value;
+});
+events.on('edit-phone: change', (data: { value: string }) => {
+	contacts.phone = data.value;
+});
+
+events.on('form-payment-delivery: validation', (errors: Partial<IOrderForms>) => {
+    const { email, phone } = errors;
+    contacts.valid = !email && !phone;
+    contacts.errors = Object.values({ email, phone }).filter(i => !!i).join('; ');
+});
 
 
 
