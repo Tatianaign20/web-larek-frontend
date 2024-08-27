@@ -3,8 +3,8 @@ import { EventEmitter } from "./components/base/events";
 import { IEvents } from './components/base/events';
 import { CardsData } from "./components/model/CardsData";
 import { BasketData } from "./components/model/BasketData";
-import { OrderForms, IOrderFormsSecond, IOrderFormsFirst } from "./components/model/OrderForms";
-import { ICard, ICardList, TCardBasket, IOrderForms} from './types';
+import { OrderForms } from "./components/model/OrderForms";
+import { ICard, ICardList, TCardBasket, IOrderForms, IOrderFormsSecond, IOrderFormsFirst} from './types';
 import { API_URL, CDN_URL } from "./utils/constants";
 import { APIweblarek } from "./components/APIweblarek";
 import { Modal } from "./components/view/Modal";
@@ -39,8 +39,7 @@ const basket = new BasketView(cloneTemplate(basketviewTemplate), events);
 const deliverypayment  = new OrderFormPaymentDeliveryView(cloneTemplate(delpayviewTemplate ), events);
 const contacts = new OrderFormContactsView(cloneTemplate(contactsviewTemplate), events);
 const successView = new SuccessOrder(cloneTemplate(success), events);
-
-//Запускаем событие. Отображаем перечень карточек (в компоненте Главная страница), данные берем из Model - класс CardsData, метод getCardList().  
+  
 
 events.on<ICardList>('cards: changed', () => {
     mainpage.catalog = cardsData.getCardList().map(item => {
@@ -51,34 +50,29 @@ events.on<ICardList>('cards: changed', () => {
 });
 
 events.on('card: selected', (item: ICard) => {
-    // cardsData.getCard(item.id);
-    
+
     const cardpreview = new CardViewPreview(cloneTemplate(cardviewpreviewTemplate),  {onClick: () => {
         if(basketData.inBasket(item.id)) {
             basketData.removeFromBasket(item.id);
             cardpreview.buttonChange = 'Купить';
-            // mainpage.counter = basketData.getCardListInBasketNumber();
-            // events.emit('basket: addcard', item);
         } else {
             basketData.addToBasket(item);
             cardpreview.buttonChange = 'Убрать';
-            // mainpage.counter = basketData.getCardListInBasketNumber();
-            // events.emit('basket: removecard', item);
         }
         mainpage.counter = basketData.getCardListInBasketNumber();
       },
     });
+    
     if(item.price === null) {
         // кнопка неактивна
         cardpreview.disableButton();
     }
     else {
-    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Убрать' : 'Купить';}
-    console.log(basketData.inBasket(item.id));
-    modal.render({content: cardpreview.render(item)});
-    //как сохранить название на кнопке?
-})
+    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Убрать' : 'Купить';
+    }
 
+    modal.render({content: cardpreview.render(item)});
+})
 
 events.on('basket: open', () => {
     const basketitems = basketData.items.map((item, index) => {
@@ -93,8 +87,6 @@ events.on('basket: open', () => {
         total: basketData.getTotalPrice(),
     })})
 })
-
-
 
 events.on('basket: removecard', (item: TCardBasket) => {
     basketData.removeFromBasket(item.id);
@@ -112,6 +104,7 @@ events.on('basket: removecard', (item: TCardBasket) => {
         total: basketData.getTotalPrice(),
     })})
 })
+
 events.on('basket: submit', () => {
 	events.emit('form-payment-delivery: open');
 });
@@ -135,7 +128,7 @@ events.on('form-payment-delivery: open', () => {
           errors: []
         }),
     });
-  });
+});
 
 events.on('order:submit', () => {
 	events.emit('form-contacts: open');
@@ -193,7 +186,6 @@ events.on('success:close', () => {
     modal.close();
 })
 
-
 // Блокируем прокрутку страницы если открыта модалка
 events.on('modal:open', () => {
     mainpage.locked = true;
@@ -212,10 +204,4 @@ api.getCardsListApi()
         console.log(cardsData.items);
 	})
 	.catch(console.error);
-
-api.getCardApi("854cef69-976d-4c2a-a18c-2aa45046c390")
-    .then((res) => {
-        console.log(res);
-    })
-    .catch(console.error);
 

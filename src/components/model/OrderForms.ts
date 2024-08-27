@@ -1,17 +1,7 @@
 import { Model } from '../base/model';
-import { IOderFormsData, TOrderFormPaymentDelivery, TOrderFormContacts,IOrderForms, FormErrors } from '../../types/index';
+import { IOderFormsData, IOrderFormsSecond, IOrderFormsFirst, FormErrors } from '../../types/index';
 // import { validate } from 'webpack';
 
-
-export interface IOrderFormsSecond {
-    email: string;
-    phone: string;
-}
-
-export interface IOrderFormsFirst {
-    payment: string;
-	address: string;
-}
 
 export class OrderForms extends Model <IOderFormsData> {
     formErrors: FormErrors = {};
@@ -78,12 +68,11 @@ export class OrderForms extends Model <IOderFormsData> {
              payment: '',
              address: ''
           };
-  }
-  clearordersecond() {
-    this.ordersecond = {
-       email: '',
-       phone: ''
-    };
-}
-
+   }
+   clearordersecond() {
+          this.ordersecond = {
+              email: '',
+              phone: ''
+          };
+   }
 }

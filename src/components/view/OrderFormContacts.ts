@@ -1,11 +1,10 @@
 import { IEvents } from '../base/events';
 import { Form } from './Form';
-import { TOrderFormContacts } from "../../types/index";
+import { IOrderFormsSecond } from "../../types/index";
 
-// Форма (расширяет класс Модальное окно): имеет обработчик, который будет выполняться, когда сабмитится форма (вызывается, когда нажимается кнопка), может обрабатывать (уметь отображать) ошибки, кнопка должна уметь отключаться или включаться в зависимости от проверки валидности, закрывается при нажатии на кнопку.
-// В классе использован код учебного проекта Оно
+// В классе использован код учебного проекта Оно тебе надо
 
-export class OrderFormContactsView extends Form<TOrderFormContacts> {
+export class OrderFormContactsView extends Form<IOrderFormsSecond> {
     constructor(container: HTMLFormElement, events: IEvents) {
         super(container, events);
     }

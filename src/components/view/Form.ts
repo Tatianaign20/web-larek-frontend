@@ -3,7 +3,7 @@ import {IEvents} from "../base/events";
 import {ensureElement} from "../../utils/utils";
 
 
-// В классе использован код учебного проекта Оно
+// В классе использован код учебного проекта Оно тебе надо
 
 interface IFormState {
     valid: boolean;

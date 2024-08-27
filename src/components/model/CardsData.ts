@@ -12,23 +12,6 @@ export class CardsData extends Model <ICard> {
         this.events.emit('cards: changed');
     }
 
-    // возможно не нужен
-    // get items() {
-    //     return this._items;
-    // }
-
-    // set preview(itemId: string | null) {
-    //     if(!itemId){
-    //         this._preview = null;
-    //         return;
-    //     }
-    //     const selectedCard = this.getCard(itemId);
-    //     if(selectedCard){
-    //         this._preview = itemId;
-    //         this.events.emit('card: selected', selectedCard);  
-    //     }
-    // }
-
     set preview(itemId: string | null) {
         if(!itemId){
             this._preview = null;
@@ -40,19 +23,16 @@ export class CardsData extends Model <ICard> {
             this.events.emit('card: selected', selectedCard);  
         }
     }
-
-
     get preview() {
         return this._preview;
     }
 
-
-    //получить массив карточек, проверила, работает
+    //получить массив карточек
     getCardList() {
         return this._items;
     }  
       
-    //получить карточку по id, возвращаем данные карточки, проверила, работает
+    //получить карточку по id, возвращаем данные карточки
     getCard(itemId: string) {
         return this._items.find(item => item.id === itemId);
     }

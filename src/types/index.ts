@@ -32,7 +32,6 @@ type TCardBasketOrder = Pick<ICard, 'id'>;
 // Данные карточки, используемые в модальном окне карты: интерфейс ICard
 
 //ЗАКАЗ
-// type TPaymentType = 'card' | 'cach';
 
 interface IOrderForms {
     payment: string; //способ оплаты
@@ -41,26 +40,28 @@ interface IOrderForms {
     phone: string; //телефон
 }
 
-export type FormErrors = Partial<Record<keyof IOrderForms, string>>;
+type FormErrors = Partial<Record<keyof IOrderForms, string>>;
 
 // Данные заказа, используемые в 1 модальном окне
-type TOrderFormPaymentDelivery = Pick<IOrderForms, 'payment' | 'address'>;
+interface IOrderFormsFirst {
+    payment: string;
+	address: string;
+}
 
 // Данные заказа, используемые в 2 модальном окне
-type TOrderFormContacts = Pick<IOrderForms, 'email' | 'phone'>;
+interface IOrderFormsSecond {
+    email: string;
+    phone: string;
+}
 
 interface IOderFormsData {
-    payment: string; //способ оплаты
-    address: string; // адрес доставки 
-    email: string; //email
-    phone: string; //телефон
-    checkValidationPaymentDylivery(): void;//валидировать 1 форму, вызвать событие проверки
-    checkValidationPayment(): void;
-    checkValidationDylivery(): void;
-    checkValidationContacts(): void;//валидировать  2 форму,вызвать событие проверки
-    checkValidationEmail(): void;
-    checkValidationPhone(): void;
-    clearOrderForms(): void;//очистить данные форм
+    formErrors: FormErrors;
+    setOrderFieldFirst(): void;
+    setOrderFieldSecond(): void;
+    validateOrderFirst(): void;
+    validateOrderSecond(): void;
+    clearorderfirst(): void;
+    clearordersecond(): void;
 }
 
 // Типизируем Коллекции
@@ -70,6 +71,7 @@ interface ICardsData {
     items: ICard[];
     preveiw: string | null; // идентификатор карточки при открытии в отдельном окне
     getCard(): ICard; //получить карточку по id
+    getCardList(): ICard[]; //получить массив карточек
  }
 
 
@@ -78,10 +80,10 @@ interface ICardBasketData {
     items: TCardBasket[]; //перечень карточек в корзине ?? может, ICard
     getCardListInBasket(): TCardBasket[]; //получить массив карточек, а именно id всех карточек)
     getCardListInBasketNumber(): number;  //чтобы число карточек получить для отображения на корзине
-    addToBasket(): void; //добавить карточку в корзину, в нем коложить карточку в массив, запустить событие, чтобы корзина обновилась, и создать этот товар в корзине
-    removeFromBasket(): void; //удалить карточку из массива, вызвать событие изменения массива в корзине, убираем из корзины
-    updateCardListInBasket():TCardBasket[];
+    addToBasket(): void; //добавить карточку в корзину
+    removeFromBasket(): void; //удалить карточку из массива
     getTotalPrice(): number; // получить полную сумму заказа
+    inBasket(): void;
     clearBasketData(): void; //очистить данные корзины после заказа
 }
 
@@ -104,11 +106,12 @@ export {
     TCardBasket,
     TCardBasketOrder,
     IOrderForms,
-    TOrderFormPaymentDelivery,
-    TOrderFormContacts,
     IOderFormsData,
     ICardsData,
     ICardBasketData,
     IOrder,
-    IOrderResult
+    IOrderResult,
+    FormErrors,
+    IOrderFormsSecond,
+    IOrderFormsFirst
 }

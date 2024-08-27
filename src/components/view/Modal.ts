@@ -3,11 +3,8 @@ import {ensureElement} from "../../utils/utils";
 import { Component } from '../base/Component';
 import { ICard } from '../../types/index';
 
-// - Модальное окно: открывается при клике, закрывается при нажатии на крестик, пустое поле, esc.  
-// constructor(container: HTMLElement, events: IEvents)
-// поля класса: container: HTMLElement, events: IEvents  
-// методы: 'open' 'close'
-// использован код учебного
+// - Модальное окно: открывается при клике, закрывается при нажатии на крестик, пустое поле.
+// Использован код учебного проекта Оно тебе надо
 
 interface IModalData {
     content: HTMLElement;

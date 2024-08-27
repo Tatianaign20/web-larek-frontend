@@ -1,4 +1,4 @@
-import { IEvents } from '../base/events';
+// import { IEvents } from '../base/events';
 import {cloneTemplate, ensureElement} from "../../utils/utils";
 import { Component } from '../base/Component';
 import { ICard, ICardBasketData, TCardCategoryType} from '../../types/index';

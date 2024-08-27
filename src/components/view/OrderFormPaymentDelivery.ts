@@ -1,12 +1,11 @@
 import { IEvents } from '../base/events';
 import {createElement, ensureElement, ensureAllElements} from "../../utils/utils";
 import { Form } from './Form';
-import { TOrderFormPaymentDelivery } from "../../types/index";
+import { IOrderFormsFirst } from "../../types/index";
 
-// Форма (расширяет класс Модальное окно): имеет обработчик, который будет выполняться, когда сабмитится форма (вызывается, когда нажимается кнопка), может обрабатывать (уметь отображать) ошибки, кнопка должна уметь отключаться или включаться в зависимости от проверки валидности, закрывается при нажатии на кнопку.
-// В классе частично использован код учебного проекта Оно
+// В классе частично использован код учебного проекта Оно тебе надо
 
-export class OrderFormPaymentDeliveryView extends Form<TOrderFormPaymentDelivery> {
+export class OrderFormPaymentDeliveryView extends Form<IOrderFormsFirst> {
    protected _buttonsРayment: HTMLButtonElement[];
 
 
