@@ -21,6 +21,7 @@ export class OrderFormPaymentDeliveryView extends Form<TOrderFormPaymentDelivery
 				this.buttonsРayment = buttonРayment.name;
 				this.onInputChange(`payment`, buttonРayment.name);
 			});
+            
 		});
     }
 

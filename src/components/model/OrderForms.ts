@@ -1,127 +1,89 @@
 import { Model } from '../base/model';
-import { IOderFormsData, TPaymentType, TOrderFormPaymentDelivery, TOrderFormContacts,IOrderForms } from '../../types/index';
+import { IOderFormsData, TOrderFormPaymentDelivery, TOrderFormContacts,IOrderForms, FormErrors } from '../../types/index';
 // import { validate } from 'webpack';
 
+
+export interface IOrderFormsSecond {
+    email: string;
+    phone: string;
+}
+
+export interface IOrderFormsFirst {
+    payment: string;
+	address: string;
+}
+
 export class OrderForms extends Model <IOderFormsData> {
-    protected _payment: TPaymentType = 'card';
-    protected _address: string;
-    protected _email: string;
-    protected _phone: string;
-    protected _errors: string[] = [];
+    formErrors: FormErrors = {};
+    orderfirst: IOrderFormsFirst = {
+        payment: '',
+        address: ''
+    }
+    ordersecond: IOrderFormsSecond = {
+        email: '',
+        phone: ''
+    };
     //events из Model
 
-    set payment(payment: TPaymentType) {
-        this._payment = payment;
-        this.checkValidationPayment();
-        this.events.emit('edit-payment: change');
-    }
-
-    get payment(): TPaymentType {
-        return this._payment;
-    }
-
-    set address(address: string) {
-        this._address = address;
-        this.checkValidationDelivery()
-        this.events.emit('edit-address: change');
-    }
-
-    get address(): string {
-        return this._address;
-    }
     
-    set email(email: string) {
-        this._email = email;
-        this.checkValidationEmail();
-        this.events.emit('edit-email: change');
-    }
+    // Использован код учебного проекта для валидации
+    setOrderFieldFirst(field: keyof IOrderFormsFirst, value: string) {
+        this.orderfirst[field] = value;
 
-    get email(): string {
-        return this._email;
-    }
-
-    set phone(phone: string) {
-        this._phone = phone;
-        this.checkValidationPhone();
-        this.events.emit('edit-phone: change');
-    }
-
-    get phone(): string {
-        return this._phone;
-    }
-
-    set errors(errors: string[]) {
-        this._errors = errors;
-        this.events.emit('error: vaidation');
-    }
-    get errors(): string[] {
-        return this._errors;
-    }
-
-    //валидировать 1 форму, вызвать событие проверки
-    checkValidationPaymentDelivery(): void {
-        this.checkValidationPayment(); 
-        this.checkValidationDelivery();
-        this.events.emit('form-payment-delivery-input: validation');
+        if (this.validateOrderFirst()) {
+            this.events.emit('orderfirst:ready', this.orderfirst);
         }
-
-    checkValidationPayment(): void {
-         if(!this.payment) {
-             this.errors.push('Необходимо выбрать способ оплаты');
-         }
-         else {
-             return null;   
-        }
-        this.events.emit('form-payment: validation', this.errors);
     }
 
-    checkValidationDelivery(): void {
-         if (!this.address) {
-             this.errors.push('Адрес - обязательное поле');
-         }
-        else {
-            return null;
+    // Использован код учебного проекта для валидации
+    validateOrderFirst() {
+        const errors: typeof this.formErrors = {};
+        if (!this.orderfirst.payment) {
+            errors.payment = 'Необходимо указать способ оплаты';
         }
-        this.events.emit('form-address-input: validation', this.errors);
+        if (!this.orderfirst.address) {
+            errors.address = 'Необходимо указать адресс доставки';
+        }
+        this.formErrors = errors;
+        this.events.emit('formErrorsFirst:change', this.formErrors);
+        return Object.keys(errors).length === 0;
     }
 
-    //валидировать  2 форму,вызвать событие проверки
-    checkValidationContacts(): void {
-        this.checkValidationEmail();
-        this.checkValidationPhone();
-        this.events.emit('form-contacts-input: validation');
+
+    // Использован код учебного проекта для валидации
+    setOrderFieldSecond(field: keyof IOrderFormsSecond, value: string) {
+        this.ordersecond[field] = value;
+
+        if (this.validateOrderSecond()) {
+            this.events.emit('ordersecond:ready', this.ordersecond);
+        }
     }
 
-    checkValidationEmail(): void {
-      
-        if (!this.email) {
-            this.errors.push('Email - обязательные поля');
+    // Использован код учебного проекта для валидации
+    validateOrderSecond() {
+        const errors: typeof this.formErrors = {};
+        if (!this.ordersecond.email) {
+            errors.email = 'Необходимо указать email';
         }
-        else {
-            return null;
+        if (!this.ordersecond.phone) {
+            errors.phone = 'Необходимо указать телефон';
         }
-        this.events.emit('form-email-input: validation', this.errors);
+        this.formErrors = errors;
+        this.events.emit('formErrorsSecond:change', this.formErrors);
+        return Object.keys(errors).length === 0;
     }
 
-    checkValidationPhone(): void {
-        if (!this.phone) {
-            this.errors.push('Телефон - обязательные поля');
-        }
-        else {
-            return null;
-        }
-        this.events.emit('form-phone-input: validation', this.errors);
-    }
+   clearorderfirst() {
+          this.orderfirst = {
+             payment: '',
+             address: ''
+          };
+  }
+  clearordersecond() {
+    this.ordersecond = {
+       email: '',
+       phone: ''
+    };
+}
 
-    //очистить данные форм
-    clearOrderForms(): void {
-        this._payment = 'card';
-        this._address = '';
-        this._email = '';
-        this._phone = '';
-        this.events.emit('edit-payment: change');
-        this.events.emit('edit-address: change');
-        this.events.emit('edit-email: change');
-        this.events.emit('edit-phone: change');
-    }
 }

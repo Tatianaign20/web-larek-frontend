@@ -19,12 +19,12 @@ export class SuccessOrder extends Component<ISuccess> {
         this._button_continue = ensureElement<HTMLButtonElement>('.order-success__close', container);
 
         this._button_continue.addEventListener('click', () => {
-            this.events.emit('success: close');
+            this.events.emit('success:close');
         });
     }
 
     set content(value: HTMLElement) {
-        this.setText(this._content, `Списано ${this.content} синапсов`);
+        this.setText(this._content, `Списано ${value} синапсов`);
     }
     set title(value: string) {
         this.setText(this._title, value);

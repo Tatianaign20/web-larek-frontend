@@ -32,15 +32,16 @@ type TCardBasketOrder = Pick<ICard, 'id'>;
 // Данные карточки, используемые в модальном окне карты: интерфейс ICard
 
 //ЗАКАЗ
-type TPaymentType = 'card' | 'cach';
+// type TPaymentType = 'card' | 'cach';
 
 interface IOrderForms {
-    payment: TPaymentType | string; //способ оплаты
+    payment: string; //способ оплаты
     address: string; // адрес доставки 
     email: string; //email
     phone: string; //телефон
 }
 
+export type FormErrors = Partial<Record<keyof IOrderForms, string>>;
 
 // Данные заказа, используемые в 1 модальном окне
 type TOrderFormPaymentDelivery = Pick<IOrderForms, 'payment' | 'address'>;
@@ -49,7 +50,7 @@ type TOrderFormPaymentDelivery = Pick<IOrderForms, 'payment' | 'address'>;
 type TOrderFormContacts = Pick<IOrderForms, 'email' | 'phone'>;
 
 interface IOderFormsData {
-    payment: TPaymentType; //способ оплаты
+    payment: string; //способ оплаты
     address: string; // адрес доставки 
     email: string; //email
     phone: string; //телефон
@@ -102,7 +103,6 @@ export {
     TCardMainPage,
     TCardBasket,
     TCardBasketOrder,
-    TPaymentType,
     IOrderForms,
     TOrderFormPaymentDelivery,
     TOrderFormContacts,
