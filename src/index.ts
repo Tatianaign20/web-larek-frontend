@@ -56,19 +56,19 @@ events.on('card: selected', (item: ICard) => {
     const cardpreview = new CardViewPreview(cloneTemplate(cardviewpreviewTemplate),  {onClick: () => {
         if(basketData.inBasket(item.id)) {
             basketData.removeFromBasket(item.id);
-            cardpreview.buttonChange = 'В корзину';
+            cardpreview.buttonChange = 'Купить';
             // mainpage.counter = basketData.getCardListInBasketNumber();
             // events.emit('basket: addcard', item);
         } else {
             basketData.addToBasket(item);
-            cardpreview.buttonChange = 'Удалить из корзины';
+            cardpreview.buttonChange = 'Убрать';
             // mainpage.counter = basketData.getCardListInBasketNumber();
             // events.emit('basket: removecard', item);
         }
         mainpage.counter = basketData.getCardListInBasketNumber();
       },
     });
-    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Удалить из корзины' : 'В корзину';
+    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Убрать' : 'Купить';
     console.log(basketData.inBasket(item.id));
     modal.render({content: cardpreview.render(item)});
     //как сохранить название на кнопке?
@@ -169,7 +169,7 @@ events.on('contacts:submit', () => {
         email: orderForms.ordersecond.email,
         phone: orderForms.ordersecond.phone,
         total: basketData.getTotalPrice(),
-        items: basketData.getCardListInBasket(),
+        items: basketData.getCardListInBasketForAPI(),
     })
     .then((res) => {
         events.emit('success:close', res);
