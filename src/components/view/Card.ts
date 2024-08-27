@@ -147,6 +147,11 @@ export class CardViewPreview extends CardViewBase {
     set buttonChange(text: string) {
         this.setText(this._buttonChange, text);
     }
+    
+    disableButton() {
+        this.setDisabled(this._buttonChange, true);
+    }
+
 }
 
 

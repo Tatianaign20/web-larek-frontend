@@ -8,7 +8,7 @@ import { ICard, ICardList, TCardBasket, IOrderForms} from './types';
 import { API_URL, CDN_URL } from "./utils/constants";
 import { APIweblarek } from "./components/APIweblarek";
 import { Modal } from "./components/view/Modal";
-import { CardViewBase, CardViewBasket, CardViewCardList, CardViewPreview } from "./components/view/Card";
+import { CardViewBasket, CardViewCardList, CardViewPreview } from "./components/view/Card";
 import { BasketView } from "./components/view/Basket";
 import { OrderFormContactsView } from "./components/view/OrderFormContacts";
 import { OrderFormPaymentDeliveryView } from "./components/view/OrderFormPaymentDelivery";
@@ -68,7 +68,12 @@ events.on('card: selected', (item: ICard) => {
         mainpage.counter = basketData.getCardListInBasketNumber();
       },
     });
-    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Убрать' : 'Купить';
+    if(item.price === null) {
+        // кнопка неактивна
+        cardpreview.disableButton();
+    }
+    else {
+    cardpreview.buttonChange = basketData.inBasket(item.id) ? 'Убрать' : 'Купить';}
     console.log(basketData.inBasket(item.id));
     modal.render({content: cardpreview.render(item)});
     //как сохранить название на кнопке?
@@ -169,7 +174,7 @@ events.on('contacts:submit', () => {
         email: orderForms.ordersecond.email,
         phone: orderForms.ordersecond.phone,
         total: basketData.getTotalPrice(),
-        items: basketData.getCardListInBasketForAPI(),
+        items: basketData.getCardListInBasket(),
     })
     .then((res) => {
         events.emit('success:close', res);

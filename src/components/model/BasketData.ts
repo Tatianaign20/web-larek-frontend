@@ -54,15 +54,6 @@ export class BasketData extends Model <ICardBasketData> {
         // this.updateCardListInBasket();
     } 
 
-    getCardListInBasketForAPI(): string []{
-        this.getCardListInBasket();
-        this._items.forEach(item => {
-           if(item.price === null) {
-            this.removeFromBasket(item.id);   
-           }
-        });
-        return this._items.map(item => item.id);
-   }
 }
 
 
